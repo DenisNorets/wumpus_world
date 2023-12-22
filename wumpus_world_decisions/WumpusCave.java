@@ -1,4 +1,4 @@
-package wumpus_world;
+package wumpus_world_decisions;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;

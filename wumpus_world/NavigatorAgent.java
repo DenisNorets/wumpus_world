@@ -1,8 +1,6 @@
 package wumpus_world;
 
-import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -15,12 +13,20 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wumpus_world_decisions.AgentPosition;
+import wumpus_world_decisions.WumpusPercept;
+import wumpus_world_decisions.WumpusAction;
+import wumpus_world_decisions.EfficientHybridWumpusAgent;
+
+
 public class NavigatorAgent extends Agent {
+	EfficientHybridWumpusAgent agent;
 
     @Override
     protected void setup() {
         System.out.println("Hello! The navigator agent " + getAID().getName() + " is ready.");
 
+        agent = new EfficientHybridWumpusAgent(4, 4, new AgentPosition(1, 1, AgentPosition.Orientation.FACING_NORTH));
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
@@ -47,8 +53,6 @@ public class NavigatorAgent extends Agent {
     }
 
     private class LocationRequestsServer extends CyclicBehaviour {
-
-        int time = 0;
 
         @Override
         public void action() {
@@ -100,10 +104,8 @@ public class NavigatorAgent extends Agent {
         }
 
         private String getAdvice(String content){
-            boolean stench = false;
-            boolean breeze = false;
-            boolean glitter = false;
-            boolean scream = false;
+        	WumpusPercept percept = new WumpusPercept();
+
             String advicedAction = "";
 
             for (Map.Entry<Integer, String> entry : STATES.entrySet()) {
@@ -112,29 +114,39 @@ public class NavigatorAgent extends Agent {
                 Matcher matcher = pattern.matcher(content);
                 if (matcher.find()) {
                     switch (value){
-                        case "Stench": stench = true;
-                        case "Breeze": breeze = true;
-                        case "Glitter": glitter = true;
-                        case "Scream": scream = true;
+                        case "Stench": percept.setStench();
+                        case "Breeze": percept.setBreeze();
+                        case "Glitter": percept.setGlitter();
+                        case "Scream": percept.setScream();
+                        case "Bump": percept.setBump();
                     }
                 }
             }
+            
+            WumpusAction action = agent.act(percept).orElseThrow();
+            
+            String symbol = action.getSymbol();
 
-            switch (time){
-                case 0: advicedAction = WumpusWorldAgent.Constants.MESSAGE_RIGHT; time++; break;
-                case 1: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 2: advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT; time++; break;
-                case 3: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 4: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 5: advicedAction = WumpusWorldAgent.Constants.MESSAGE_GRAB; time++; break;
-                case 6: advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT; time++; break;
-                case 7: advicedAction = WumpusWorldAgent.Constants.MESSAGE_SHOOT; time++; break;
-                case 8: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 9: advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT; time++; break;
-                case 10: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 11: advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD; time++; break;
-                case 12: advicedAction = WumpusWorldAgent.Constants.MESSAGE_CLIMB; time++; break;
-            }
+	        switch (symbol) {
+	        	case "Forward":
+	        		advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD;
+	            	break;
+		        case "TurnLeft":
+		        	advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT;
+	                break;
+	            case "TurnRight":
+	            	advicedAction = WumpusWorldAgent.Constants.MESSAGE_RIGHT;
+	                break;
+	            case "Grab":
+	            	advicedAction = WumpusWorldAgent.Constants.MESSAGE_GRAB;
+	                break;
+	            case "Shoot":
+	            	advicedAction = WumpusWorldAgent.Constants.MESSAGE_SHOOT;
+	                break;
+	            case "Climb":
+	            	advicedAction = WumpusWorldAgent.Constants.MESSAGE_CLIMB;
+	                break;
+	        }
 
             int rand = 1 + (int) (Math.random() * 3);
             switch (rand) {

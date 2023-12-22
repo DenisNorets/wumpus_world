@@ -12,6 +12,8 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.*;
 
+import wumpus_world_decisions.*;
+
 public class WumpusWorldAgent extends Agent {
 
     private WumpusCave cave;
