@@ -128,11 +128,11 @@ public class NavigatorAgent extends Agent {
             String symbol = action.getSymbol();
 
 	        switch (symbol) {
-	        	case "Forward":
-	        		advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD;
+	            case "Forward":
+	        	advicedAction = WumpusWorldAgent.Constants.MESSAGE_FORWARD;
 	            	break;
-		        case "TurnLeft":
-		        	advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT;
+		    case "TurnLeft":
+		        advicedAction = WumpusWorldAgent.Constants.MESSAGE_LEFT;
 	                break;
 	            case "TurnRight":
 	            	advicedAction = WumpusWorldAgent.Constants.MESSAGE_RIGHT;
